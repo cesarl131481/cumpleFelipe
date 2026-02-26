@@ -1,0 +1,751 @@
+/*
+  ============================================================
+  ui.css — Componentes de Interfaz de Usuario
+  ============================================================
+  Este archivo contiene los estilos de todos los componentes
+  interactivos y paneles de información:
+
+  1. Sistema de pantallas (screens) — lógica de show/hide
+  2. Pantalla de espera (scanning)
+  3. Pantalla de detección (detected) — mensaje + botón
+  4. Pantalla de clonación (cloning) — barra de progreso ADN
+  5. Overlay de información del dinosaurio (dino-info)
+  6. Botón principal de laboratorio
+  7. Responsividad móvil
+
+  Depende de las variables definidas en lab.css.
+  ============================================================
+*/
+
+
+/* ============================================================
+   1. SISTEMA DE PANTALLAS
+   Cada pantalla (.screen) está oculta por defecto.
+   Solo la que tiene la clase .active es visible.
+   El controlador (lab-controller.js) agrega/quita .active.
+   ============================================================ */
+.screen {
+  display: none;                   /* oculta por defecto */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl) var(--space-md);
+  pointer-events: none;            /* no bloquea la cámara AR */
+}
+
+/* Pantalla activa — se muestra con flex */
+.screen.active {
+  display: flex;
+  animation: fade-in 0.4s ease forwards;
+}
+
+/* Las pantallas interactivas necesitan recibir clicks */
+#screen-detected.active,
+#screen-cloning.active {
+  pointer-events: auto;
+}
+
+
+/* ============================================================
+   2. PANTALLA DE ESPERA — #screen-scanning
+   Marco de escaneo centrado en pantalla con instrucción.
+   Los estilos del marco (.corner, .scan-line) están en lab.css
+   porque son parte del ambiente visual, no de un componente UI.
+   ============================================================ */
+#screen-scanning {
+  gap: var(--space-md);
+}
+
+
+/* ============================================================
+   3. PANTALLA DE DETECCIÓN — #screen-detected
+   Aparece al detectar un marcador válido.
+   Contiene: ícono ADN animado, título, subtítulo, botón.
+   ============================================================ */
+#screen-detected {
+  justify-content: flex-end;      /* empuja el contenido hacia abajo */
+  padding-bottom: clamp(80px, 15vh, 140px);
+}
+
+/* Contenedor del mensaje de confirmación */
+#detection-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+
+  /* Panel semitransparente estilo laboratorio */
+  background: rgba(10, 26, 15, 0.85);
+  border: 1px solid var(--color-border-glow);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--glow-green), inset 0 0 20px rgba(42,255,106,0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  animation: slide-up 0.5s ease forwards;
+}
+
+/* Ícono grande de ADN pulsante */
+.dna-icon {
+  font-size: clamp(2rem, 8vw, 3rem);
+  animation: pulse-logo 1.5s ease-in-out infinite;
+}
+
+/* Título "Secuencia Correcta" */
+#detection-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-neon-green);
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Subtítulo con el nombre del ADN detectado */
+#detection-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(42, 255, 106, 0.7);
+  letter-spacing: 0.05em;
+}
+
+/* El span con el nombre del ADN (se rellena desde el JSON) */
+#dna-label {
+  color: var(--color-neon-cyan);
+  font-weight: bold;
+  text-shadow: var(--glow-cyan);
+}
+
+
+/* ============================================================
+   4. PANTALLA DE CLONACIÓN — #screen-cloning
+   La barra de progreso que simula la combinación de ADN.
+   ============================================================ */
+#screen-cloning {
+  justify-content: flex-end;
+  padding-bottom: clamp(80px, 15vh, 140px);
+}
+
+/* Contenedor principal de la barra de clonación */
+#clone-container {
+  width: min(90%, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  text-align: center;
+
+  background: rgba(10, 26, 15, 0.9);
+  border: 1px solid var(--color-border-glow);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--glow-green), inset 0 0 30px rgba(42,255,106,0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Título de la fase de clonación */
+#clone-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-cyan);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Mensaje de fase actual (viene del JSON progressMessages) */
+#clone-message {
+  font-size: var(--text-sm);
+  color: rgba(42, 255, 106, 0.75);
+  letter-spacing: 0.05em;
+  min-height: 1.4em;              /* evita saltos de layout al cambiar texto */
+  transition: opacity var(--transition-normal);
+}
+
+/* Pista (fondo) de la barra de progreso */
+#progress-track {
+  width: 100%;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(42, 255, 106, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Barra de progreso que crece (width controlado por JS) */
+#progress-bar {
+  height: 100%;
+  width: 0%;                       /* JS actualiza este valor */
+  background: linear-gradient(
+    to right,
+    var(--color-dna-b),            /* violeta (base ADN) */
+    var(--color-neon-cyan),        /* cyan (síntesis) */
+    var(--color-neon-green)        /* verde (completado) */
+  );
+  border-radius: 10px;
+  transition: width 0.3s ease;     /* suaviza la actualización de JS */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de brillo que corre sobre la barra */
+#progress-glow {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Porcentaje numérico */
+#progress-percent {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-neon-green);
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.1em;
+}
+
+/* ---- Constructor de ADN (segmentos móviles) ---- */
+/*
+  Visualización de 5 segmentos que se llenan progresivamente.
+  Representa que el niño está "ensamblando" el ADN del dino.
+  Cada segmento se activa (clase .active) desde dino-loader.js
+  según el porcentaje de descarga.
+*/
+#dna-builder {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.dna-segment {
+  width: clamp(28px, 7vw, 44px);
+  height: clamp(28px, 7vw, 44px);
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(42, 255, 106, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+/* Segmento activo — se llena con el color del ADN */
+.dna-segment.active {
+  border-color: var(--color-neon-green);
+  background: linear-gradient(
+    135deg,
+    var(--color-dna-b),
+    var(--color-dna-a)
+  );
+  box-shadow: var(--glow-green);
+  animation: segment-pop 0.3s ease;
+}
+
+/* Letras de base nitrogenada (A, T, G, C) — decorativas */
+.dna-segment::after {
+  content: attr(data-base);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.dna-segment.active::after {
+  opacity: 1;
+}
+
+
+/* ============================================================
+   5. OVERLAY DE INFORMACIÓN DEL DINOSAURIO
+   Panel que aparece cuando el dino ya es visible en AR.
+   Posicionado en la parte inferior de la pantalla.
+   ============================================================ */
+#dino-info-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--space-md);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+  /* env(safe-area-inset-bottom) = respeta el notch/home bar en iOS */
+  pointer-events: none;
+}
+
+/* Tarjeta de información */
+#dino-info-card {
+  background: rgba(6, 13, 7, 0.88);
+  border: 1px solid rgba(42, 255, 106, 0.35);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--glow-green), inset 0 0 20px rgba(42,255,106,0.03);
+  animation: slide-up 0.6s ease forwards;
+}
+
+/* Período geológico — texto pequeño arriba del nombre */
+.info-period {
+  font-size: var(--text-lg);
+  color: var(--color-neon-amber);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: var(--space-sm);
+}
+
+/* Nombre del dinosaurio — el más grande */
+#dino-info-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-neon-green);
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-md);
+}
+
+/* Grid de estadísticas */
+#dino-info-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* 2 columnas en móvil */
+  gap: var(--space-sm);
+}
+
+/* Cada fila de estadística */
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: rgba(42, 255, 106, 0.05);
+  border: 1px solid rgba(42, 255, 106, 0.15);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* La cualidad ocupa las 2 columnas completas */
+.stat-item.special {
+  grid-column: 1 / -1;
+}
+
+.stat-icon {
+  font-size: var(--text-base);
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: rgba(42, 255, 106, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.stat-value {
+  font-size: var(--text-sm);
+  color: var(--color-neon-cyan);
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(0,255,204,0.4);
+  margin-left: auto;
+  text-align: right;
+}
+
+
+/* ============================================================
+   6. BOTÓN PRINCIPAL DE LABORATORIO — .btn-lab
+   Botón grande y llamativo para acciones principales.
+   Estilo: bisel holográfico con brillo animado.
+   ============================================================ */
+.btn-lab {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  min-width: min(260px, 70vw);
+
+  /* Apariencia */
+  background: linear-gradient(
+    135deg,
+    rgba(10, 26, 15, 0.92),
+    rgba(6, 13, 7, 0.08)
+  ),
+  linear-gradient(
+    135deg,
+   rgba(42, 255, 106, 0.15),
+   rgba(0, 255, 204, 0.08)
+  );
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--radius-lg);
+  color: var(--color-neon-green);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: var(--glow-green);
+  box-shadow: var(--glow-green);
+
+  /* Interacción */
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: glow-pulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto shimmer sobre el botón */
+.btn-lab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+  transition: left 0.4s ease;
+}
+
+.btn-lab:hover::before,
+.btn-lab:active::before {
+  left: 100%;
+}
+
+/* Estado activo (tap) */
+.btn-lab:active {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+
+.btn-icon {
+  font-size: var(--text-lg);
+}
+
+.btn-text {
+  flex: 1;
+  text-align: center;
+}
+
+
+/* ============================================================
+   7. ANIMACIONES DE UI
+   ============================================================ */
+
+/* Shimmer que corre sobre la barra de progreso */
+@keyframes progress-shimmer {
+  0%   { left: -60%; }
+  100% { left: 160%; }
+}
+
+/* Pop al activar un segmento de ADN */
+@keyframes segment-pop {
+  0%   { transform: scale(0.8); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Entrada del overlay de info del dino */
+@keyframes info-card-enter {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+/* ============================================================
+   8. RESPONSIVIDAD MÓVIL
+   Ajustes para pantallas muy pequeñas (< 380px)
+   como algunos modelos Xiaomi/Redmi compactos.
+   ============================================================ */
+@media (max-width: 380px) {
+  #clone-container {
+    padding: var(--space-md);
+  }
+
+  #dino-info-stats {
+    grid-template-columns: 1fr;    /* 1 columna en pantallas muy pequeñas */
+  }
+
+  .stat-item.special {
+    grid-column: 1;
+  }
+
+  .btn-lab {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--text-sm);
+  }
+}
+
+/*
+  Soporte para el notch de iPhone (safe areas)
+  env() es una función CSS estándar soportada en Safari iOS
+  y Chrome Android. Asegura que el contenido no quede bajo
+  el home indicator o la cámara frontal.
+*/
+@supports (padding: env(safe-area-inset-bottom)) {
+  #lab-footer {
+    padding-bottom: calc(var(--space-xs) + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* ============================================================
+   PANTALLA DE BIENVENIDA
+   ============================================================ */
+#welcome-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 9999;
+  background: radial-gradient(ellipse at center, #0f2416 0%, #060d07 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.welcome-logo {
+  font-size: clamp(3rem, 15vw, 5rem);
+  animation: pulse-logo 2s ease-in-out infinite;
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-neon-green);
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.1em;
+}
+
+.welcome-subtitle {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-neon-cyan);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.welcome-desc {
+  font-size: var(--text-sm);
+  color: rgba(42, 255, 106, 0.6);
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+}
+/* ============================================================
+   PANEL DE CONTRASEÑA / SECUENCIA GENÉTICA
+   ============================================================ */
+
+#password-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+  background: rgba(10, 26, 15, 0.85);
+  border: 1px solid var(--color-border-glow);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--glow-green), inset 0 0 20px rgba(42,255,106,0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: slide-up 0.5s ease forwards;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-neon-green);
+  text-shadow: var(--glow-green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(42, 255, 106, 0.7);
+  letter-spacing: 0.05em;
+}
+
+/* Slots indicadores de progreso */
+#pwd-slots {
+  display: flex;
+  gap: var(--space-sm);
+  margin: var(--space-xs) 0;
+}
+
+.pwd-slot {
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
+  border: 2px solid rgba(42, 255, 106, 0.3);
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-neon-cyan);
+  text-shadow: var(--glow-cyan);
+  transition: all var(--transition-fast);
+}
+
+.pwd-slot.filled {
+  border-color: var(--color-neon-green);
+  background: rgba(42, 255, 106, 0.12);
+  box-shadow: var(--glow-green);
+  animation: segment-pop 0.2s ease;
+}
+
+/* Estado error — slots se ponen rojos */
+.pwd-slot.error {
+  border-color: var(--color-neon-red);
+  background: rgba(255, 58, 58, 0.15);
+  box-shadow: 0 0 8px rgba(255,58,58,0.6);
+  animation: shake 0.4s ease;
+}
+
+/* Botones A T G C */
+#pwd-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btn-dna {
+  pointer-events: auto;
+  width: clamp(48px, 12vw, 64px);
+  height: clamp(48px, 12vw, 64px);
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--radius-md);
+  background: rgba(10, 26, 15, 0.85);
+  color: var(--color-neon-green);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  text-shadow: var(--glow-green);
+  box-shadow: var(--glow-green);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-dna:active {
+  transform: scale(0.92);
+  background: rgba(42, 255, 106, 0.2);
+}
+
+.btn-dna:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Botón borrar */
+#btn-clear-pwd {
+  pointer-events: auto;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid rgba(42, 255, 106, 0.4);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: rgba(42, 255, 106, 0.5);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+#btn-clear-pwd:active {
+  color: var(--color-neon-green);
+  border-color: var(--color-neon-green);
+}
+
+/* Panel de error */
+#error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+  background: rgba(26, 10, 10, 0.88);
+  border: 1px solid var(--color-neon-red);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  box-shadow: 0 0 12px rgba(255,58,58,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: slide-up 0.4s ease forwards;
+}
+
+#error-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-neon-red);
+  text-shadow: 0 0 8px rgba(255,58,58,0.8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#error-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255, 58, 58, 0.7);
+  letter-spacing: 0.05em;
+}
+
+/* Animación de sacudida para error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}

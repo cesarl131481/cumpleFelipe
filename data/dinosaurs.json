@@ -1,0 +1,34 @@
+{
+  "markers": [
+    {
+      "markerIndex": 0,
+      "dinoId": "trex",
+      "dataFile": "data/trex.json"
+    },
+    {
+      "markerIndex": 1,
+      "dinoId": "triceratops",
+      "dataFile": "data/triceratops.json"
+    },
+    {
+      "markerIndex": 2,
+      "dinoId": "velociraptor",
+      "dataFile": "data/velociraptor.json"
+    },
+    {
+      "markerIndex": 3,
+      "dinoId": "dilophosaurus",
+      "dataFile": "data/dilophosaurus.json"
+    },
+    {
+      "markerIndex": 4,
+      "dinoId": "pachycephalosaurus",
+      "dataFile": "data/pachycephalosaurus.json"
+    },
+    {
+      "markerIndex": 5,
+      "dinoId": "pteranodon",
+      "dataFile": "data/pteranodon.json"
+    }
+  ]
+}

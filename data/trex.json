@@ -1,0 +1,44 @@
+{
+  "id": "trex",
+  "model": "assets/models/trex.glb",
+  "animations": {
+    "sequence": [
+      "idle",
+      "fidget_02",
+      "alert_idle",
+      "fidget_01",
+      "attack"
+    ],
+    "loop": true,
+    "transitionTime": 0.5
+  },
+  "cloning": {
+    "dnaCombination": "Alpha-Sequence-T7",
+    "progressMessages": [
+      "Extrayendo ADN fósil...",
+      "Combinando secuencias base...",
+      "Estabilizando hélice doble...",
+      "Activando proteínas T-Rex...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#c8e6ff",
+    "cloudDensity": "alta",
+    "revealDuration": 2.5
+  },
+  "overlay": {
+    "name": "Tyrannosaurus Rex",
+    "period": "Cretácico Tardío",
+    "size": "4 metros de alto, 12 metros de longitud",
+    "diet": "Carnívoro",
+    "speed": "20 km/h",
+    "quality": "Depredador Ápex — El rey de los dinosaurios"
+  },
+  "scale": 0.16,
+  "position": {
+    "x": 0,
+    "y": 0.027,
+    "z": 0
+  }
+}

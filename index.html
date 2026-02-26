@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a1a0f">
+  <title>DinoLab AR</title>
+
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+
+  <link rel="stylesheet" href="css/lab.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <style>.a-enter-vr, .a-enter-ar { display: none !important; }</style>
+</head>
+<body>
+
+  <div id="welcome-screen">
+    <div class="welcome-content">
+      <div class="welcome-logo">🧬</div>
+      <h1 class="welcome-title">DinoLab<span class="logo-accent">AR</span></h1>
+      <h2 class="welcome-subtitle">Laboratorio de Clonación</h2>
+      <h2 class="welcome-subtitle">CUMPLEAÑOS DE FELIPE</h2>
+      <p class="welcome-desc">Escanea un marcador de ADN<br>y clona tu dinosaurio.</p>
+      <button id="start-button" class="btn-lab">
+        <span class="btn-icon">▶</span>
+        <span class="btn-text">Iniciar</span>
+      </button>
+    </div>
+  </div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: assets/markers/targets.mind; uiLoading: yes; uiScanning: yes;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    renderer="colorManagement: true; physicallyCorrectLights: true"
+  >
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-light type="ambient"     color="#ffffff" intensity="2"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="2" position="1 2 1"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="1" position="-1 1 -1"></a-light>
+
+    <!-- Marcador 0: T-Rex -->
+    <a-entity mindar-image-target="targetIndex: 0" id="anchor-0">
+      <a-entity id="model-0"               
+        position="0 0.027 0" 
+        scale="0.6 0.6 0.6"  
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+    <!-- Marcador 1: Triceratops -->
+    <a-entity mindar-image-target="targetIndex: 1" id="anchor-1">
+      <a-entity id="model-1"        
+        position="0 0.02 0"  
+        scale="20 20 20"  
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+    <!-- Marcador 2: Velociraptor -->
+    <a-entity mindar-image-target="targetIndex: 2" id="anchor-2">
+      <a-entity id="model-2"       
+        position="0 0.003 0" 
+        scale="20 20 20" 
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+    <!-- Marcador 3: Dilophosaurus -->
+    <a-entity mindar-image-target="targetIndex: 3" id="anchor-3">
+      <a-entity id="model-3"      
+        position="0 0.013 0" 
+        scale="0.35 0.35 0.35"  
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+    <!-- Marcador 4: Pachycephalosaurus -->
+    <a-entity mindar-image-target="targetIndex: 4" id="anchor-4">
+      <a-entity id="model-4" 
+        position="0 0.01 0"  
+        scale="20 20 20"  
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+    <!-- Marcador 5: Pteranodon -->
+    <a-entity mindar-image-target="targetIndex: 5" id="anchor-5">
+      <a-entity id="model-5"         
+        position="0 0.017 0" 
+        scale="0.5 0.5 0.5" 
+        rotation="90 0 0"
+        visible="false"></a-entity>
+    </a-entity>
+  </a-scene>
+
+  <div id="lab-overlay">
+    <header id="lab-header">
+      <div id="lab-logo">
+        <span class="logo-icon">🧬</span>
+        <span class="logo-text">DinoLab<span class="logo-accent">AR</span></span>
+      </div>
+      <div id="lab-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Iniciando...</span>
+      </div>
+    </header>
+
+    <div id="screen-scanning" class="screen">
+      <div id="scan-frame">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="scan-line"></div>
+      </div>
+      <p id="scan-instruction">Apunta al marcador de ADN</p>
+    </div>
+
+  <div id="screen-detected" class="screen">
+
+    <!-- PASO 1: Ingresar contraseña -->
+    <div id="password-panel">
+      <div class="dna-icon">🔬</div>
+      <h2 class="panel-title">Ingresa Secuencia Genética</h2>
+      <p class="panel-subtitle">ADN detectado: <span id="dna-label">---</span></p>
+
+      <!-- Indicadores de progreso (4 slots) -->
+      <div id="pwd-slots">
+        <div class="pwd-slot" id="slot-0"></div>
+        <div class="pwd-slot" id="slot-1"></div>
+        <div class="pwd-slot" id="slot-2"></div>
+        <div class="pwd-slot" id="slot-3"></div>
+      </div>
+
+      <!-- Botones táctiles -->
+      <div id="pwd-buttons">
+        <button class="btn-dna" data-base="A">A</button>
+        <button class="btn-dna" data-base="T">T</button>
+        <button class="btn-dna" data-base="G">G</button>
+        <button class="btn-dna" data-base="C">C</button>
+      </div>
+
+      <!-- Botón borrar -->
+      <button id="btn-clear-pwd" class="btn-lab-sm">⌫ Borrar</button>
+    </div>
+
+    <!-- PASO 2a: Secuencia correcta -->
+    <div id="detection-message" class="hidden">
+      <div class="dna-icon">🧬</div>
+      <h2 id="detection-title">Secuencia Correcta</h2>
+      <p id="detection-subtitle">ADN identificado: <span id="dna-label-confirm">---</span></p>
+    </div>
+    <button id="btn-clone" class="btn-lab hidden">
+      <span class="btn-icon">⚗️</span>
+      <span class="btn-text">Iniciar Clonación</span>
+    </button>
+
+    <!-- PASO 2b: Secuencia incorrecta -->
+    <div id="error-message" class="hidden">
+      <div class="dna-icon">⚠️</div>
+      <h2 id="error-title">Secuencia Incorrecta</h2>
+      <p id="error-subtitle">Reintentando en <span id="error-countdown">3</span>s...</p>
+    </div>
+
+</div>
+
+    <div id="screen-cloning" class="screen">
+      <div id="clone-container">
+        <h2 id="clone-title">Combinando ADN...</h2>
+        <p id="clone-message">Extrayendo secuencias fósiles...</p>
+        <div id="progress-track">
+          <div id="progress-bar"><div id="progress-glow"></div></div>
+        </div>
+        <div id="progress-percent">0%</div>
+        <div id="dna-builder">
+          <div class="dna-segment" id="seg-1" data-base="A"></div>
+          <div class="dna-segment" id="seg-2" data-base="T"></div>
+          <div class="dna-segment" id="seg-3" data-base="G"></div>
+          <div class="dna-segment" id="seg-4" data-base="C"></div>
+          <div class="dna-segment" id="seg-5" data-base="X"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dino-info-overlay" class="hidden">
+      <div id="dino-info-card">
+        <div id="dino-info-period" class="info-period">---</div>
+        <h1 id="dino-info-name">---</h1>
+        <div id="dino-info-stats">
+          <div class="stat-item"><span class="stat-icon">📏</span><span class="stat-label">Tamaño</span><span class="stat-value" id="stat-size">---</span></div>
+          <div class="stat-item"><span class="stat-icon">🍖</span><span class="stat-label">Dieta</span><span class="stat-value" id="stat-diet">---</span></div>
+          <div class="stat-item"><span class="stat-icon">⚡</span><span class="stat-label">Velocidad</span><span class="stat-value" id="stat-speed">---</span></div>
+          <div class="stat-item special"><span class="stat-icon">⭐</span><span class="stat-label">Cualidad</span><span class="stat-value" id="stat-quality">---</span></div>
+        </div>
+      </div>
+    </div>
+
+    <footer id="lab-footer">
+      <span class="footer-data">LAB-v2.0</span>
+      <span class="footer-data" id="footer-marker">MARCADOR: ---</span>
+      <span class="footer-data" id="footer-time">00:00:00</span>
+      <img id="jp-logo" src="assets/JurassicPark.png" alt="Jurassic Park">
+    </footer>
+  </div>
+
+  <script src="js/dino-database.js"></script>
+  <script src="js/lab-controller.js"></script>
+  <script src="js/marker-detector.js"></script>
+  <script src="js/dino-loader.js"></script>
+  <script src="js/fx-clouds.js"></script>
+  <script src="js/fx-overlay.js"></script>
+</body>
+</html>

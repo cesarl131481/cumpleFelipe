@@ -1,0 +1,38 @@
+{
+  "id": "dilophosaurus",
+  "model": "assets/models/dilophosaurus.glb",
+  "animations": {
+    "sequence": [
+      "idle",
+      "fidget_02",
+      "alert_start",
+      "alert_idle",
+      "attack"
+    ],
+    "loop": true,
+    "transitionTime": 0.4
+  },
+  "cloning": {
+    "dnaCombination": "Delta-Sequence-D4",
+    "progressMessages": [
+      "Localizando ADN dilofosurio...",
+      "Sintetizando cresta craneal doble...",
+      "Activando glándulas de veneno...",
+      "Calibrando collar de advertencia...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#ffe0cc",
+    "cloudDensity": "media",
+    "revealDuration": 2.0
+  },
+  "overlay": {
+    "name": "Dilophosaurus Wetherilli",
+    "period": "Jurásico Temprano",
+    "size": "2 metros de alto, 6 metros de longitud",
+    "diet": "Carnívoro",
+    "speed": "38 km/h",
+    "quality": "Cazador venenoso — Doble cresta, doble peligro"
+  }
+}

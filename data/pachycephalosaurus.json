@@ -1,0 +1,37 @@
+{
+  "id": "pachycephalosaurus",
+  "model": "assets/models/pachycephalosaurus.glb",
+  "animations": {
+    "sequence": [
+      "idle",
+      "fidget_02",
+      "alert_idle",
+      "attack"
+    ],
+    "loop": true,
+    "transitionTime": 0.4
+  },
+  "cloning": {
+    "dnaCombination": "Epsilon-Sequence-P6",
+    "progressMessages": [
+      "Rastreando ADN paquicefalosaurio...",
+      "Construyendo cúpula craneal ósea...",
+      "Reforzando vértebras cervicales...",
+      "Calibrando instinto de embestida...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#e8f5cc",
+    "cloudDensity": "baja",
+    "revealDuration": 1.8
+  },
+  "overlay": {
+    "name": "Pachycephalosaurus Wyomingensis",
+    "period": "Cretácico Tardío",
+    "size": "2 metros de alto, 4.5 metros de longitud",
+    "diet": "Herbívoro",
+    "speed": "45 km/h",
+    "quality": "Cabeza de acero — Cráneo de 25 cm de grosor"
+  }
+}

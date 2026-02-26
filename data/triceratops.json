@@ -1,0 +1,38 @@
+{
+  "id": "triceratops",
+  "model": "assets/models/triceratops.glb",
+  "animations": {
+    "sequence": [
+      "idle",
+      "fidget_02",
+      "alert_idle",
+      "fidget_01",
+      "attack"
+    ],
+    "loop": true,
+    "transitionTime": 0.4
+  },
+  "cloning": {
+    "dnaCombination": "Beta-Sequence-C3",
+    "progressMessages": [
+      "Localizando ADN tricerátopo...",
+      "Fusionando cromosomas...",
+      "Construyendo cuernos defensivos...",
+      "Reforzando coraza craneal...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#d4f5e0",
+    "cloudDensity": "media",
+    "revealDuration": 2.0
+  },
+  "overlay": {
+    "name": "Triceratops Horridus",
+    "period": "Cretácico Tardío",
+    "size": "3 metros de alto, 9 metros de longitud",
+    "diet": "Herbívoro",
+    "speed": "30 km/h",
+    "quality": "Escudo viviente — Tres cuernos, ningún miedo"
+  }
+}

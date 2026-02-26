@@ -1,0 +1,440 @@
+/*
+  ============================================================
+  lab.css — Tema Visual del Laboratorio DinoLab AR
+  ============================================================
+  Este archivo define la identidad visual global:
+  - Variables CSS (colores, tipografía, espaciados)
+  - Reset y base del documento
+  - Estética de laboratorio científico / biopunk
+  - Animaciones de ambiente (scanlines, pulsos, parpadeos)
+  - Estilos del header, footer y decoraciones de fondo
+
+  NO contiene estilos de componentes de UI específicos
+  (botones, barras de progreso, overlays) — esos van en ui.css
+  ============================================================
+*/
+
+
+/* ============================================================
+   IMPORTAR FUENTE — Orbitron (científica/futurista)
+   Se carga desde Google Fonts. Usamos solo los pesos
+   necesarios (400, 600, 700) para no afectar el rendimiento
+   en móviles con red lenta.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+
+
+/* ============================================================
+   VARIABLES CSS — Sistema de diseño centralizado
+   Cambiar estos valores afecta toda la interfaz de forma
+   consistente. Facilita la personalización futura.
+   ============================================================ */
+:root {
+  /* Paleta principal: laboratorio de noche, bioluminiscente */
+  --color-bg:           #060d07;       /* negro verdoso profundo */
+  --color-surface:      #0a1a0f;       /* superficie de panel */
+  --color-surface-2:    #0f2416;       /* superficie elevada */
+  --color-border:       #1a4a25;       /* bordes de paneles */
+  --color-border-glow:  #2aff6a;       /* bordes con brillo activo */
+
+  /* Colores de acento — neón bioluminiscente */
+  --color-neon-green:   #2aff6a;       /* verde principal */
+  --color-neon-cyan:    #00ffcc;       /* cyan secundario */
+  --color-neon-amber:   #ffcc00;       /* ámbar para alertas */
+  --color-neon-red:     #ff3a3a;       /* rojo para errores */
+  --color-dna-a:        #ff6b35;       /* color base ADN — naranja */
+  --color-dna-b:        #7b2dff;       /* color base ADN — violeta */
+
+  /* Tipografía */
+  --font-display:       'Orbitron', monospace;      /* títulos, HUD */
+  --font-mono:          'Share Tech Mono', monospace; /* datos, códigos */
+
+  /* Tamaños de fuente responsivos — optimizados para móvil */
+  --text-xs:    clamp(11px, 3vw,  13px);
+  --text-sm:    clamp(13px, 3.5vw, 15px);
+  --text-base:  clamp(14px, 4vw,  17px);
+  --text-lg:    clamp(16px, 4.5vw, 20px);
+  --text-xl:    clamp(20px, 5.5vw, 26px);
+  --text-2xl:   clamp(26px, 7vw,   36px);
+
+  /* Espaciados — escalados para móvil */
+  --space-xs:   clamp(4px,  1vw, 6px);
+  --space-sm:   clamp(8px,  2vw, 12px);
+  --space-md:   clamp(14px, 3.5vw, 20px);
+  --space-lg:   clamp(20px, 5vw,  28px);
+  --space-xl:   clamp(28px, 7vw,  40px);
+
+  /* Radios de borde */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+
+  /* Sombras con brillo */
+  --glow-green: 0 0 8px rgba(42, 255, 106, 0.6),
+                0 0 20px rgba(42, 255, 106, 0.3);
+  --glow-cyan:  0 0 8px rgba(0, 255, 204, 0.6),
+                0 0 20px rgba(0, 255, 204, 0.2);
+  --glow-amber: 0 0 8px rgba(255, 204, 0, 0.6),
+                0 0 20px rgba(255, 204, 0, 0.2);
+
+  /* Transiciones estándar */
+  --transition-fast:   0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow:   0.6s ease;
+}
+
+
+/* ============================================================
+   RESET Y BASE
+   Elimina estilos por defecto del navegador para tener
+   control total sobre la apariencia en todos los dispositivos.
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;               /* sin scroll: es una app AR */
+  background: transparent;
+  color: var(--color-neon-green);
+  font-family: var(--font-mono);
+  font-size: 16px; /* base fija — las variables escalan desde aquí */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Evitar selección accidental de texto al interactuar */
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* Evitar el highlight azul en taps (móvil) */
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ============================================================
+   ESCENA A-FRAME / MINDAR
+   La escena 3D debe ocupar exactamente toda la pantalla
+   y estar por debajo de todos los overlays HTML.
+   ============================================================ */
+a-scene {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0;
+}
+
+/* Canvas 3D de A-Frame */
+a-scene canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Video de cámara que inyecta MindAR */
+video {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: -1 !important;
+}
+
+/* Contenedores internos de MindAR */
+.mindar-ui-overlay,
+#mindar-video-container,
+[id*="mindar"] video {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: -1 !important;
+}
+
+
+/* ============================================================
+   OVERLAY PRINCIPAL
+   Cubre toda la pantalla sobre la escena AR.
+   Usa pointer-events: none por defecto para que los clicks
+   pasen a través cuando no hay elementos interactivos activos.
+   Los elementos hijos que sí son interactivos (botones) tienen
+   pointer-events: auto individualmente.
+   ============================================================ */
+#lab-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+
+  background: transparent;
+}
+
+
+/* ============================================================
+   HEADER DEL LABORATORIO
+   Barra superior con logo y estado del sistema.
+   ============================================================ */
+#lab-header {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 13, 7, 0.95),
+    rgba(6, 13, 7, 0.0)
+  );
+  border-bottom: 1px solid rgba(42, 255, 106, 0.15);
+}
+
+/* Logo izquierdo */
+#lab-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: var(--glow-green);
+}
+
+.logo-icon {
+  font-size: var(--text-xl);
+  animation: pulse-logo 3s ease-in-out infinite;
+}
+
+.logo-text {
+  color: var(--color-neon-green);
+}
+
+.logo-accent {
+  color: var(--color-neon-cyan);
+  margin-left: 2px;
+}
+
+/* Indicador de estado derecho */
+#lab-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--color-neon-green);
+  opacity: 0.85;
+}
+
+/* Punto de estado parpadeante */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-neon-green);
+  box-shadow: var(--glow-green);
+  animation: blink-dot 1.2s ease-in-out infinite;
+}
+
+/* Estados del punto: cambia color según el estado de la app */
+.status-dot.waiting  { background: var(--color-neon-amber); box-shadow: var(--glow-amber); }
+.status-dot.detected { background: var(--color-neon-cyan);  box-shadow: var(--glow-cyan);  }
+.status-dot.cloning  { background: var(--color-dna-a);      box-shadow: 0 0 8px rgba(255,107,53,0.6); }
+.status-dot.active   { background: var(--color-neon-green); box-shadow: var(--glow-green); }
+
+
+/* ============================================================
+   FOOTER DEL LABORATORIO
+   Barra inferior con datos del sistema tipo HUD.
+   ============================================================ */
+#lab-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-md);
+  background: linear-gradient(
+    to top,
+    rgba(6, 13, 7, 0.95),
+    rgba(6, 13, 7, 0.0)
+  );
+  border-top: 1px solid rgba(42, 255, 106, 0.15);
+  font-size: var(--text-xs);
+  color: rgba(42, 255, 106, 0.5);
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.footer-data {
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   MARCO DE ESCANEO — Pantalla de espera
+   Las cuatro esquinas y la línea de escaneo animada.
+   ============================================================ */
+#scan-frame {
+  position: relative;
+  width: min(70vw, 280px);
+  height: min(70vw, 280px);
+}
+
+/* Esquinas del marco — se generan como pseudo-elementos */
+.corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--color-neon-green);
+  border-style: solid;
+  box-shadow: var(--glow-green);
+  animation: corner-pulse 2s ease-in-out infinite;
+}
+
+.corner.tl { top: 0; left: 0;  border-width: 3px 0 0 3px; }
+.corner.tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+.corner.bl { bottom: 0; left: 0;  border-width: 0 0 3px 3px; }
+.corner.br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+
+/* Línea de escaneo que baja y sube */
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-neon-green),
+    transparent
+  );
+  box-shadow: var(--glow-green);
+  animation: scan-move 2.5s ease-in-out infinite;
+}
+
+#scan-instruction {
+  text-align: center;
+  color: rgba(42, 255, 106, 0.7);
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: var(--space-md);
+  animation: text-flicker 4s ease-in-out infinite;
+
+  /* ← NUEVO: fondo oscuro */
+  background: rgba(10, 26, 15, 0.85);
+  border: 1px solid var(--color-border-glow);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  box-shadow: var(--glow-green), inset 0 0 20px rgba(42,255,106,0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* ============================================================
+   ANIMACIONES GLOBALES
+   ============================================================ */
+
+/* Logo pulsante */
+@keyframes pulse-logo {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+/* Punto de estado parpadeante */
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Línea de escaneo moviéndose */
+@keyframes scan-move {
+  0%   { top: 0%;   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Pulso de esquinas del marco */
+@keyframes corner-pulse {
+  0%, 100% { opacity: 1;   box-shadow: var(--glow-green); }
+  50%       { opacity: 0.5; box-shadow: none; }
+}
+
+/* Parpadeo de texto */
+@keyframes text-flicker {
+  0%, 94%, 96%, 98%, 100% { opacity: 0.7; }
+  95%, 97%                 { opacity: 0.2; }
+}
+
+/* Entrada suave desde abajo */
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Fade in simple */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Pulso de brillo para elementos activos */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: var(--glow-green); }
+  50%       { box-shadow: 0 0 20px rgba(42,255,106,0.8), 0 0 40px rgba(42,255,106,0.4); }
+}
+
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+
+/* Ocultar elemento completamente */
+.hidden {
+  display: none !important;
+}
+
+/* Invisible pero ocupa espacio */
+.invisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Clase para animar entrada de pantallas */
+.screen-enter {
+  animation: slide-up 0.4s ease forwards;
+}
+
+/* Logo Jurassic Park — mix-blend-mode:screen elimina el fondo negro */
+#jp-logo {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(90px, 28vw, 150px);
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 20;
+  filter: drop-shadow(0 0 6px rgba(255,180,0,0.5));
+  transition: opacity 0.6s ease;   /* ← NUEVO */
+}
+/* ← NUEVO: agrega esta clase al final del archivo */
+#jp-logo.hidden-fade {
+  opacity: 0 !important;
+  pointer-events: none;
+}

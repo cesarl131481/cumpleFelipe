@@ -1,0 +1,38 @@
+{
+  "id": "pteranodon",
+  "model": "assets/models/pteranodon.glb",
+  "animations": {
+    "sequence": [
+      "glide",
+      "flap",
+      "attack",
+      "flap",
+      "glide"
+    ],
+    "loop": true,
+    "transitionTime": 0.5
+  },
+  "cloning": {
+    "dnaCombination": "Zeta-Sequence-PT2",
+    "progressMessages": [
+      "Localizando ADN pteranodón...",
+      "Desplegando membranas de vuelo...",
+      "Calibrando cresta aerodinámica...",
+      "Ajustando visión de alta altitud...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#cce8ff",
+    "cloudDensity": "alta",
+    "revealDuration": 3.0
+  },
+  "overlay": {
+    "name": "Pteranodon Longiceps",
+    "period": "Cretácico Tardío",
+    "size": "7 metros de envergadura",
+    "diet": "Piscívoro",
+    "speed": "90 km/h",
+    "quality": "Señor del cielo — El reptil volador más grande"
+  }
+}

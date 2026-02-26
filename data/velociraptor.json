@@ -1,0 +1,38 @@
+{
+  "id": "velociraptor",
+  "model": "assets/models/velociraptor.glb",
+  "animations": {
+    "sequence": [
+      "idle",
+      "fidget_02",
+      "alert_idle",
+      "fidget_01",
+      "attack"
+    ],
+    "loop": true,
+    "transitionTime": 0.3
+  },
+  "cloning": {
+    "dnaCombination": "Gamma-Sequence-V9",
+    "progressMessages": [
+      "Rastreando ADN raptor...",
+      "Sintetizando garras retráctiles...",
+      "Calibrando reflejos neuronales...",
+      "Optimizando velocidad de sprint...",
+      "Clonación completada."
+    ]
+  },
+  "fx": {
+    "cloudColor": "#fff3cc",
+    "cloudDensity": "baja",
+    "revealDuration": 1.5
+  },
+  "overlay": {
+    "name": "Velociraptor Mongoliensis",
+    "period": "Cretácico Tardío",
+    "size": "2 metros de alto, 1.8 metros de longitud",
+    "diet": "Carnívoro",
+    "speed": "64 km/h",
+    "quality": "Cazador inteligente — Trabaja en manada"
+  }
+}
